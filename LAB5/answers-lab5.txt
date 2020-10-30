@@ -1,0 +1,14 @@
+NAME: Yu-Wen, Tseng
+COURSE: CS544 Lab5
+
+Question1.
+Do you have to do anything else to ensure that this I/O privilege setting is saved and restored properly when you subsequently switch from one environment to another? Why?
+Note that the Makefile file in this lab sets up QEMU to use the file obj/kern/kernel.img as the image for disk 0 (typically “Drive C” under DOS/Windows) as before, and to use the (new) file obj/fs/fs.img as the image for disk 1 (“Drive D”). In this lab our file system should only ever touch disk 1; disk 0 is used only to boot the kernel. If you manage to corrupt either disk image in some way, you can reset both of them to their original, “pristine” versions simply by typing:
+$ rm obj/kern/kernel.img obj/fs/fs.img
+$ make
+or by doing:
+$ make clean
+$ make
+
+ANSWER:
+No extra processing is required. Because different processes have their own Trapframe, they don't affect each other.

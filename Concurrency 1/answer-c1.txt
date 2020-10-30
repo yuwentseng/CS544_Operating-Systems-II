@@ -1,0 +1,111 @@
+NAME: Yu-Wen, Tseng
+Course: CS544, OS2
+
+Questions.
+
+
+1. Why does your bad_lock() result in an inconsistent result?
+
+
+Because bad_lock is not an atomic multithreading which can enter the critical section at the same time.
+
+
+
+2. Can you put the one of the results of running ./test-xchg and
+its L1-dcache-load-misses values?
+
+    Result          : 2499997500000
+    Time            : 256 ms
+    Cache misses    : 3,695,676
+
+
+3. Why xchg_lock generates many L1 cache misses?
+
+
+Because xchg_lock will always update the value and use while() to check whether the value in the lock, after updating the value in the cache we need to invalidate the cache in the other CPUS, which will cause many L1 cache misses.
+
+
+
+4. What's the difference between xchg and cmpxchg?
+Specifically, why xchg is a test-and-set instruction and
+why cmpxchg is a test and test-and-set instruction?
+
+
+The difference is updating lock if lock == 1.
+
+1. in xchg_lock:
+	The lock will update if lock ==1, and it will cause cache in other cpus invalid.
+2. in cmpxchg_lock:
+	The lock will check the value first (if lock == 0).
+	If it is true, do test and set.
+	Otherwise(if lock == 1), do nothing and do not update lock if lock == 1.
+
+
+
+
+5. Can you put the one of the results of running ./test-tts-xchg and
+its l1-dcache-load-misses values?
+
+    result          : 2499997500000
+    time            : 1271 ms
+    cache misses    : 41,973,160
+
+
+6. Why combining 'software test' and 'hardware test-and-set'
+results in the consistent result? And why is it faster than
+test-xchg and test-cmpxchg?
+
+In tts-xchg, it only uses xchg_lock in hardware but doesn't need to be compared, so it saves comparison time. Then using cmpxchg which at the software level since cmpxchg isn't an atomic operation. To help reduce cache misses, it can also help saving time.
+
+
+
+
+7. Can you put the one of the results of running ./test-backoff-cmpxchg and
+its l1-dcache-load-misses values?
+
+    result          : 2499997500000
+    time            : 256 ms
+    cache misses    : 3,695,676
+
+
+8. Why exponential backoff would increase the performance of our lock
+implementation?
+
+Because waiting for the thread will attempt to acquire an available lock. In the process of competing locks, because of the repeated requests, the congestion will be caused in the process. Therefore, we need to set the counter. When the request fails, the process that doesn't obtain the lock needs to wait for 0 to 2 ^ n-1, which can reduce congestion.
+
+
+
+
+9. Can you put the one of the results of running ./test-mutex and
+its l1-dcache-load-misses values?
+
+    result          : 2499997500000
+    time            : 618 ms
+    cache misses    : 7,137,560
+
+
+
+
+
+( 10 will not be graded ).
+10. If you finished to implement backoff_cmpxchg_lock(),
+you have implemented something faster than pthread_mutex,
+which is widely used by many programmers.
+What do you feel about this?
+
+
+
+
+
+
+
+And, is there any concerns to replace pthread_mutex to our implementation?
+
+
+
+
+
+
+
+FYI, You may see the implementation of pthread_mutex at here:
+https://github.com/lattera/glibc/blob/master/nptl/pthread_mutex_lock.c
